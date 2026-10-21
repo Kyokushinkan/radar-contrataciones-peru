@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -121,6 +121,20 @@ def main():
             st.write("**Inicio:**", contrato["inicio"])
             st.write("**Cierre:**", contrato["cierre"])
             st.write("**ID del contrato:**", contrato["idContrato"])
+
+            identificador = str(contrato["idContrato"]).strip()
+
+            if identificador.isdecimal():
+                url_oficial = (
+                    "https://prod6.seace.gob.pe/cotizacion/"
+                    "contrataciones/contratacion-detalle/"
+                    f"{identificador}"
+                )
+                st.link_button(
+                    "Ver detalle en SEACE",
+                    url_oficial,
+                )
+
 
             st.caption(
                 "Enlace oficial directo pendiente de verificación. "
