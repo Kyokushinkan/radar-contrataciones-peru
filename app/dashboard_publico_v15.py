@@ -1,8 +1,8 @@
-﻿"""Radar Contrataciones Peru - Dashboard publico v1.5."""
+"""Radar Contrataciones Peru - Dashboard publico v1.5."""
 
 import streamlit as st
 
-from app.dashboard_datos_publicos_v15 import cargar_contratos_publicos
+from dashboard_datos_publicos_v15 import cargar_contratos_publicos
 
 
 def main():
