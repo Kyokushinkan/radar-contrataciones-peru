@@ -181,10 +181,12 @@ def main():
                 f"Registros consolidados: **{len(filas_v17)}**  \\n"
                 f"Publicaci?n m?s reciente de contrato: "
                 f"**{fecha_mas_reciente}**  \\n"
-                f"Fecha del archivo en este despliegue: "
+                f"Fecha t?cnica del archivo desplegado: "
                 f"**{fecha_archivo} (Lima)**  \\n"
                 "Descarga autom?tica de nuevos contratos: "
-                "**no habilitada**."
+                "**no habilitada**.  \\n"
+                "Los registros proceden de capturas consolidadas, "
+                "no de una descarga autom?tica."
             )
         else:
             st.info(
