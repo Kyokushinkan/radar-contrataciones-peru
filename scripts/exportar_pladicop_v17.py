@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import csv
 import json
 import sqlite3
@@ -17,6 +17,7 @@ COLUMNAS = [
     "cotizar",
     "fecIniCotizacion",
     "fecFinCotizacion",
+    "fecPublica",
 ]
 
 
