@@ -72,17 +72,26 @@ def clasificar(registro, ahora=None):
 # CSV_PUBLICO_V16
 CSV_PUBLICO = ROOT / "data/public/pladicop_cotizaciones_v16.csv"
 
+# CSV incremental v1.7: tiene prioridad cuando existe.
+CSV_INCREMENTAL_V17 = (
+    ROOT / "data/public/pladicop_cotizaciones_v17.csv"
+)
+
 
 def cargar_oportunidades(ruta=CAPTURA, ahora=None):
     ruta = Path(ruta)
 
-    if ruta.is_file():
-        documento = json.loads(
-            ruta.read_text(encoding="utf-8-sig")
-        )
-        registros = documento.get("data", [])
+    if CSV_INCREMENTAL_V17.is_file() and ruta == CAPTURA:
+        fuente = CSV_INCREMENTAL_V17
+    elif ruta.is_file():
+        fuente = ruta
     elif CSV_PUBLICO.is_file():
-        with CSV_PUBLICO.open(
+        fuente = CSV_PUBLICO
+    else:
+        return []
+
+    if fuente.suffix.lower() == ".csv":
+        with fuente.open(
             "r", encoding="utf-8-sig", newline=""
         ) as archivo:
             registros = list(csv.DictReader(archivo))
@@ -92,7 +101,10 @@ def cargar_oportunidades(ruta=CAPTURA, ahora=None):
                 str(registro.get("cotizar", "")).lower() == "true"
             )
     else:
-        return []
+        documento = json.loads(
+            fuente.read_text(encoding="utf-8-sig")
+        )
+        registros = documento.get("data", [])
 
     if not isinstance(registros, list):
         raise ValueError("El campo data debe ser una lista")

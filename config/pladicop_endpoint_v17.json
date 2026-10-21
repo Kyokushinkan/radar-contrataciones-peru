@@ -1,0 +1,23 @@
+﻿{
+  "fuente": "PLADICOP",
+  "servicio": "buscador_publico_contratos_menores",
+  "url": "https://prod6.seace.gob.pe/v1/s8uit-services/buscadorpublico/contrataciones/buscador",
+  "metodo_observado": "GET",
+  "parametros_observados": {
+    "anio": "2024",
+    "palabra_clave": "",
+    "orden": 2,
+    "page": 2,
+    "page_size": 5
+  },
+  "campos_respuesta": [
+    "data",
+    "pageable.pageNumber",
+    "pageable.pageSize",
+    "pageable.totalElements"
+  ],
+  "clave_deduplicacion": "idContrato",
+  "acceso_automatizado_autorizado": false,
+  "extraccion_habilitada": false,
+  "estado": "PENDIENTE_VALIDACION_OECE"
+}
