@@ -1,0 +1,57 @@
+{
+  "data": [
+    {
+      "secuencia": 1,
+      "idContrato": "SYNTH-1",
+      "nroContratacion": "SIM-2026-1",
+      "desContratacion": "Registro sint?tico de prueba",
+      "idObjetoContrato": 1,
+      "nomObjetoContrato": "Bienes",
+      "desObjetoContrato": "Material simulado",
+      "nomEtapaContratacion": "Prueba",
+      "fecIniCotizacion": "18/10/2026 08:00:00",
+      "fecFinCotizacion": "20/10/2026 13:00:00",
+      "cotizar": false,
+      "idEstadoContrato": 1,
+      "nomEstadoContrato": "Estado sint?tico",
+      "fecPublica": "17/10/2026 09:30:15",
+      "idTipoCotizacion": null,
+      "idCotizacion": null,
+      "idEstadoCotiza": null,
+      "nomEstadoCotiza": null,
+      "nomEntidad": "Entidad ficticia de pruebas",
+      "numSubsanacionesTotal": 0,
+      "numSubsanacionesPendientes": 0,
+      "fecLimiteSubsanaMax": null
+    },
+    {
+      "secuencia": 2,
+      "idContrato": "SYNTH-2",
+      "nroContratacion": "SIM-2026-2",
+      "desContratacion": "Registro sint?tico de prueba",
+      "idObjetoContrato": 1,
+      "nomObjetoContrato": "Bienes",
+      "desObjetoContrato": "Material simulado",
+      "nomEtapaContratacion": "Prueba",
+      "fecIniCotizacion": "18/10/2026 08:00:00",
+      "fecFinCotizacion": "19/10/2026 12:00:00",
+      "cotizar": null,
+      "idEstadoContrato": 1,
+      "nomEstadoContrato": "Estado sint?tico",
+      "fecPublica": "17/10/2026 09:30:15",
+      "idTipoCotizacion": null,
+      "idCotizacion": null,
+      "idEstadoCotiza": null,
+      "nomEstadoCotiza": null,
+      "nomEntidad": "Entidad ficticia de pruebas",
+      "numSubsanacionesTotal": 0,
+      "numSubsanacionesPendientes": 0,
+      "fecLimiteSubsanaMax": null
+    }
+  ],
+  "pageable": {
+    "pageNumber": 1,
+    "pageSize": 2,
+    "totalElements": 5
+  }
+}

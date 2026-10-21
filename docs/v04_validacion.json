@@ -1,0 +1,59 @@
+{
+  "fecha": "2026-10-20",
+  "pytest": {
+    "passed": 18,
+    "failed": 0,
+    "duration_seconds": 1.79,
+    "command": ".\\.venv\\Scripts\\python.exe -m pytest -q -o cache_dir=data/test-cache-v04 --basetemp=data/test-tmp-v04-01"
+  },
+  "archivos_sin_cambios": {
+    "app\\db.py": true,
+    "app\\pladicop.py": true,
+    "app\\pladicop_batch.py": true,
+    "app\\__init__.py": true,
+    "scripts\\audit_sources.py": true,
+    "scripts\\import_pladicop.py": true,
+    "scripts\\import_pladicop_folder.py": true,
+    "scripts\\init_db.py": true,
+    "data\\pladicop_cobertura_demo.sqlite3": true,
+    "data\\pladicop_demo.sqlite3": true,
+    "data\\pladicop_real_prueba.sqlite3": true,
+    "data\\radar_contrataciones.sqlite3": true,
+    "config\\sources.json": true
+  },
+  "sqlite_solo_lectura": {
+    "data\\pladicop_cobertura_demo.sqlite3": {
+      "integrity_check": [
+        [
+          "ok"
+        ]
+      ],
+      "foreign_key_check": []
+    },
+    "data\\pladicop_demo.sqlite3": {
+      "integrity_check": [
+        [
+          "ok"
+        ]
+      ],
+      "foreign_key_check": []
+    },
+    "data\\pladicop_real_prueba.sqlite3": {
+      "integrity_check": [
+        [
+          "ok"
+        ]
+      ],
+      "foreign_key_check": []
+    },
+    "data\\radar_contrataciones.sqlite3": {
+      "integrity_check": [
+        [
+          "ok"
+        ]
+      ],
+      "foreign_key_check": []
+    }
+  },
+  "matriz_json_valida": true
+}

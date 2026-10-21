@@ -1,0 +1,15 @@
+{
+  "app\\db.py": "aeef6647ca4b7258bded4f2e376b60d180594a64a87f574a16a1e4dbb77eade2",
+  "app\\pladicop.py": "aa2d1e07c7c6115e783a70ab6b3c779bbd64727b2fc8bf5dfb0ff328bdb6a2ba",
+  "app\\pladicop_batch.py": "0d7f14e22f2945884a698103fbce1b42027af9afbca5043f7a2db58c1a81b15d",
+  "app\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scripts\\audit_sources.py": "3fa461351fcf6d67d616033f20bac289207a2b92541004403b4fdef49b775364",
+  "scripts\\import_pladicop.py": "e67106020574ff5c88d908b818611f7d2dcaae9c12a8ff667bef44cecdfa2607",
+  "scripts\\import_pladicop_folder.py": "4bc6f314033d2ddfc4ec181411876338dc23573f5bb4ae4fe53d6dc17ceed058",
+  "scripts\\init_db.py": "b005ab0269683933fcaf2551132eb0ca64243966e28fbd7607a6b829219d7707",
+  "data\\pladicop_cobertura_demo.sqlite3": "fb0b94960444ce5e37fc97c5fe61c2b998528955dd5e441fa5c4781e613c548d",
+  "data\\pladicop_demo.sqlite3": "b27f3b7075f9d95c6a33b325d86d7d88b9a64123ca7004fce37779bacd555f9e",
+  "data\\pladicop_real_prueba.sqlite3": "46192a8b7a1f8be72fa91bbc396d9220f9c655143c2841a3b11b4307a09632d8",
+  "data\\radar_contrataciones.sqlite3": "368f9683f856009f76878a504e4f36d3d8683caa0bbcb33c0fe20fbd5dc11d26",
+  "config\\sources.json": "286a971565153a1881b6b8ffdce9866adf7f889542827a675652b3c7acb84f82"
+}

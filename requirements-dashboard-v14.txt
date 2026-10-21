@@ -1,0 +1,3 @@
+# Complemento: requirements.txt permanece intacto.
+streamlit==1.66.0
+pandas==2.3.3

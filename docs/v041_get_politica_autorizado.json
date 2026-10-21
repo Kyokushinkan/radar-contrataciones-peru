@@ -1,0 +1,12 @@
+{
+  "url": "https://contratacionesabiertas.osce.gob.pe/downloads/politica_publicacion.pdf",
+  "method": "GET",
+  "checked_at": "2026-10-21T00:16:02.907370+00:00",
+  "limit_bytes": 1048576,
+  "status": null,
+  "headers": {},
+  "bytes_read": 0,
+  "download": null,
+  "sha256": null,
+  "error": "<urlopen error [Errno 11001] getaddrinfo failed>"
+}

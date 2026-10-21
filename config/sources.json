@@ -1,0 +1,6 @@
+[
+  {"id":"contratos_menores", "name":"PLADICOP - Buscador público de contratos menores", "url":"https://prod6.seace.gob.pe/buscador-publico/contrataciones", "status":"PENDING_ACCESS_AUDIT", "method":"manual_browser_review"},
+  {"id":"pac", "name":"OECE - Datos abiertos PAC", "url":"https://www.gob.pe/14272-acceder-al-portal-de-datos-abiertos-del-osce", "status":"PENDING_FILE_AUDIT", "method":"official_download"},
+  {"id":"cmn", "name":"MEF - Cuadro Multianual de Necesidades", "url":"https://www.mef.gob.pe/es/tributos-sp-30710/614-home/detallpcontrataciones/7276-cuadro-multianual-de-necesidades", "status":"PENDING_COVERAGE_AUDIT", "method":"entity_publications"},
+  {"id":"procedimientos", "name":"OECE - Contrataciones Abiertas", "url":"https://contratacionesabiertas.oece.gob.pe/descargas", "status":"PENDING_FILE_AUDIT", "method":"official_download"}
+]

@@ -1,0 +1,40 @@
+﻿# Entorno Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Bases de datos
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite3-*
+
+# Capturas y resultados locales
+data/raw/
+data/processed/
+data/test-*/
+data/pytest-*/
+
+# Configuracion privada
+.streamlit/secrets.toml
+.env
+.env.*
+!.env.example
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Capturas reales en la raiz de data
+/data/*.json
+/data/*.csv
+/data/*.txt
+
+# Directorios temporales de pruebas
+/data/pytest*/
+/data/test*/
+
+# Copias y respaldos locales
+*.bak
