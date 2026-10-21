@@ -26,6 +26,11 @@ jobs:
       - name: Instalar dependencias
         run: python -m pip install -r requirements.txt pytest
 
+      - name: Preparar base SQLite temporal para CI
+        run: |
+          mkdir -p data
+          python -c "import sqlite3; sqlite3.connect('data/radar_contrataciones.sqlite3').close()"
+
       - name: Ejecutar pruebas del importador
         run: |
           mkdir -p data/test-tmp-batch
