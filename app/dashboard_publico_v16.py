@@ -88,6 +88,34 @@ def mostrar_contratos(registros, clave):
             )
 
 
+# PLAZOS_V21: fechas de cotizacion, siempre hora local de Lima.
+def _fecha_plazo_v21(valor):
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    texto = str(valor or "").strip()
+    for formato in ("%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%Y-%m-%d %H:%M:%S"):
+        try:
+            return datetime.strptime(texto, formato).replace(tzinfo=ZoneInfo("America/Lima"))
+        except ValueError:
+            continue
+    return None
+
+
+def _plazo_v21(registro, ahora):
+    inicio = _fecha_plazo_v21(registro.get("Inicio"))
+    cierre = _fecha_plazo_v21(registro.get("Cierre"))
+    if cierre is None or inicio is None or cierre < inicio:
+        return "Sin fecha verificable", "—", None
+    if ahora > cierre:
+        return "Plazo vencido", "Vencido", cierre
+    if ahora < inicio:
+        return "Proximo a iniciar", "Aun no inicia", cierre
+    segundos = max(0, int((cierre - ahora).total_seconds()))
+    dias, resto = divmod(segundos, 86400)
+    horas, minutos = divmod(resto, 3600)
+    return "Plazo abierto", f"{dias} d {horas} h {minutos // 60} min", cierre
+
+
 def main():
     st.set_page_config(
         page_title="Radar Contrataciones Peru v1.7",
@@ -136,10 +164,10 @@ def main():
 
     tabs = st.tabs([
         "Contrataciones PLADICOP",
-        "Explorador",
-        "Oportunidades potenciales",
+        "Explorador historico (99)",
+        "Antecedentes por rubro",
         "Entidades y categorías",
-        "Histórico",
+        "Archivo historico",
     ])
 
     with tabs[0]:
@@ -219,134 +247,103 @@ def main():
             st.error(f"Error al cargar datos: {exc}")
             oportunidades = []
 
-        candidatos = [
-            r for r in oportunidades
-            if r["Clasificacion"] == "Candidato a cotizacion"
-        ]
+        # PLAZOS_V21: evaluar las fechas reales, no el estado de captura.
+        from zoneinfo import ZoneInfo
+        ahora_lima = datetime.now(ZoneInfo("America/Lima"))
+        todos_plazos = []
+        for original in oportunidades:
+            fila = dict(original)
+            estado, restante, cierre_dt = _plazo_v21(fila, ahora_lima)
+            fila["Estado del plazo"] = estado
+            fila["Tiempo restante"] = restante
+            fila["Estado en captura"] = fila.pop("Estado PLADICOP", "")
+            fila["_cierre_v21"] = cierre_dt
+            todos_plazos.append(fila)
 
-        c1, c2, c3 = st.columns(3)
-
-        c1.metric("Contratos PLADICOP", len(oportunidades))
-        c2.metric("Candidatos a cotizacion", len(candidatos))
-        c3.metric(
-            "No clasificados como candidatos",
-            len(oportunidades) - len(candidatos)
-        )
-
-        st.warning(
-            "La vigencia se calcula a partir de la ultima "
-            "captura disponible. Verifica cada oportunidad "
-            "en SEACE antes de cotizar."
+        abiertos = [r for r in todos_plazos if r["Estado del plazo"] == "Plazo abierto"]
+        proximos = [r for r in todos_plazos if r["Estado del plazo"] == "Proximo a iniciar"]
+        vencidos = [r for r in todos_plazos if r["Estado del plazo"] == "Plazo vencido"]
+        desconocidos = [r for r in todos_plazos if r["Estado del plazo"] == "Sin fecha verificable"]
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Contratos PLADICOP", len(todos_plazos))
+        c2.metric("Con plazo abierto (segun captura)", len(abiertos))
+        c3.metric("Proximos a iniciar", len(proximos))
+        c4.metric("Plazo vencido", len(vencidos))
+        st.caption(
+            f"{len(desconocidos)} sin fecha verificable. "
+            "Las fechas son de capturas historicas, no una confirmacion en tiempo real. "
+            "Antes de cotizar, verifica el expediente oficial."
         )
 
         busqueda = st.text_input(
             "Buscar entidad, codigo o descripcion",
             key="busqueda_pladicop_activos"
         ).strip().casefold()
-
         vista = st.radio(
             "Registros que deseas consultar",
-            ["Todos los contratos", "Solo candidatos"],
+            ["Plazo abierto", "Proximos a iniciar", "Todos los contratos", "Plazo vencido", "Sin fecha verificable"],
             horizontal=True,
-            key="vista_pladicop_v17",
+            key="vista_pladicop_v21",
         )
-
-        registros = (
-            list(oportunidades)
-            if vista == "Todos los contratos"
-            else list(candidatos)
-        )
-
+        grupos_v21 = {
+            "Plazo abierto": abiertos,
+            "Proximos a iniciar": proximos,
+            "Todos los contratos": todos_plazos,
+            "Plazo vencido": vencidos,
+            "Sin fecha verificable": desconocidos,
+        }
+        registros = list(grupos_v21[vista])
         if busqueda:
             registros = [
                 r for r in registros
-                if busqueda in " ".join(
-                    str(valor) for valor in r.values()
-                ).lower()
+                if busqueda in " ".join(str(v) for k, v in r.items() if not k.startswith("_")).casefold()
             ]
-
-        registros.sort(
-            key=lambda r: str(r.get("Cierre", "")),
-            reverse=True,
-        )
-
+        # Priorizar cierres proximos; los que no tienen fecha van al final.
+        registros.sort(key=lambda r: (
+            r["_cierre_v21"] is None,
+            r["_cierre_v21"] or datetime.max.replace(tzinfo=ZoneInfo("America/Lima"))
+        ))
         st.write(f"**{len(registros)} registros encontrados**")
-
         if registros:
             tamano = st.selectbox(
-                "Contratos por pagina",
-                [10, 25, 50],
-                index=1,
-                key="tamano_pladicop_v17",
+                "Contratos por pagina", [10, 25, 50], index=1,
+                key="tamano_pladicop_v21"
             )
-
-            total_paginas = (
-                len(registros) + tamano - 1
-            ) // tamano
-
+            total_paginas = (len(registros) + tamano - 1) // tamano
             pagina = st.number_input(
-                "Pagina",
-                min_value=1,
-                max_value=total_paginas,
-                value=1,
-                step=1,
-                key="pagina_pladicop_v17",
+                "Pagina", min_value=1, max_value=total_paginas,
+                value=1, step=1, key="pagina_pladicop_v21"
             )
-
             desde = (pagina - 1) * tamano
-            pagina_registros = registros[
-                desde:desde + tamano
-            ]
-
-            st.caption(
-                f"Mostrando {desde + 1}-"
-                f"{desde + len(pagina_registros)} "
-                f"de {len(registros)} contratos"
-            )
-
-            # ENLACES_PLADICOP_V20: enlace individual por ID; no cambia el CSV.
-            _registros_enlazados_v20 = []
-            for _fila_v20 in pagina_registros:
-                _item_v20 = dict(_fila_v20)
-                _id_v20 = str(_item_v20.get("ID", "")).strip()
-                if _id_v20.isdigit():
-                    _item_v20["Abrir proceso"] = (
-                        "https://prod6.seace.gob.pe/buscador-publico/contrataciones/"
-                        + _id_v20
-                    )
-                else:
-                    _item_v20["Abrir proceso"] = None
-                _registros_enlazados_v20.append(_item_v20)
-
+            pagina_registros = registros[desde:desde + tamano]
+            st.caption(f"Mostrando {desde + 1}-{desde + len(pagina_registros)} de {len(registros)} contratos")
+            filas_tabla = []
+            for fila in pagina_registros:
+                item = {k: v for k, v in fila.items() if not k.startswith("_")}
+                identificador = str(item.get("ID", "")).strip()
+                item["Abrir proceso"] = (
+                    "https://prod6.seace.gob.pe/buscador-publico/contrataciones/" + identificador
+                    if identificador.isdigit() else None
+                )
+                filas_tabla.append(item)
             st.dataframe(
-                _registros_enlazados_v20,
+                filas_tabla,
                 use_container_width=True,
                 hide_index=True,
                 column_order=[
-                    "Abrir proceso",
-                    "ID",
-                    "Codigo",
-                    "Entidad",
-                    "Objeto",
-                    "Descripcion",
-                    "Inicio",
-                    "Cierre",
-                    "Estado PLADICOP",
-                    "Verificacion"
+                    "Abrir proceso", "ID", "Codigo", "Entidad", "Objeto",
+                    "Descripcion", "Inicio", "Cierre", "Estado del plazo",
+                    "Tiempo restante", "Estado en captura", "Verificacion"
                 ],
                 column_config={
                     "Abrir proceso": st.column_config.LinkColumn(
-                        "Abrir proceso",
-                        help="Consultar el expediente en PLADICOP; verificar vigencia antes de cotizar",
-                        display_text="Ver expediente",
-                    ),
+                        "Abrir proceso", display_text="Ver expediente",
+                        help="Verificar directamente en PLADICOP antes de cotizar"
+                    )
                 },
             )
         else:
-            st.info(
-                "No existen registros para los filtros "
-                "seleccionados."
-            )
+            st.info("No existen registros para el filtro seleccionado.")
 
         st.link_button(
             "Verificar en SEACE",
@@ -354,7 +351,7 @@ def main():
         )
 
     with tabs[1]:
-        st.subheader("Explorador de contratos")
+        st.subheader("Explorador de la base historica independiente")
 
         buscar = st.text_input(
             "Buscar",
@@ -408,7 +405,7 @@ def main():
         mostrar_contratos(filtrados, "explorador")
 
     with tabs[2]:
-        st.subheader("Oportunidades comerciales potenciales")
+        st.subheader("Antecedentes comerciales por rubro (base historica)")
 
         st.caption(
             "Búsqueda de antecedentes por rubro. "
@@ -458,7 +455,7 @@ def main():
             )
         ]
 
-        st.metric("Antecedentes relacionados", len(encontrados))
+        st.metric("Registros historicos relacionados (no abiertos)", len(encontrados))
 
         mostrar_contratos(encontrados, "potenciales")
 
@@ -501,7 +498,7 @@ def main():
         )
 
     with tabs[4]:
-        st.subheader("Histórico completo")
+        st.subheader("Archivo historico independiente (99 registros)")
 
         st.caption(
             "Base histórica conservada para consulta y análisis."
