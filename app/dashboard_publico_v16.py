@@ -115,11 +115,24 @@ def main():
         for c in contratos
     )
 
+    # PORTADA_V20: separar PLADICOP de los antecedentes historicos.
+    from pathlib import Path as _PathV20
+    import csv as _csv_v20
+    _csv_publico_v20 = (
+        _PathV20(__file__).resolve().parents[1]
+        / "data" / "public" / "pladicop_cotizaciones_v17.csv"
+    )
+    _total_pladicop_v20 = 0
+    if _csv_publico_v20.is_file():
+        with _csv_publico_v20.open(encoding="utf-8-sig", newline="") as _f_v20:
+            _total_pladicop_v20 = sum(1 for _ in _csv_v20.DictReader(_f_v20))
+
     a, b, c, d = st.columns(4)
-    a.metric("Registros históricos", len(contratos))
-    b.metric("Bienes historicos", bienes)
-    c.metric("Servicios historicos", servicios)
-    d.metric("Activos verificados en tiempo real", 0)
+    a.metric("Contratos PLADICOP", _total_pladicop_v20)
+    b.metric("Base historica independiente", len(contratos))
+    c.metric("Bienes / servicios historicos", f"{bienes} / {servicios}")
+    d.metric("Verificados en tiempo real", 0)
+    st.caption("PLADICOP: capturas consolidadas. La base historica es independiente; no se suman ambos universos.")
 
     tabs = st.tabs([
         "Contrataciones PLADICOP",
@@ -291,11 +304,26 @@ def main():
                 f"de {len(registros)} contratos"
             )
 
+            # ENLACES_PLADICOP_V20: enlace individual por ID; no cambia el CSV.
+            _registros_enlazados_v20 = []
+            for _fila_v20 in pagina_registros:
+                _item_v20 = dict(_fila_v20)
+                _id_v20 = str(_item_v20.get("ID", "")).strip()
+                if _id_v20.isdigit():
+                    _item_v20["Abrir proceso"] = (
+                        "https://prod6.seace.gob.pe/buscador-publico/contrataciones/"
+                        + _id_v20
+                    )
+                else:
+                    _item_v20["Abrir proceso"] = None
+                _registros_enlazados_v20.append(_item_v20)
+
             st.dataframe(
-                pagina_registros,
+                _registros_enlazados_v20,
                 use_container_width=True,
                 hide_index=True,
                 column_order=[
+                    "Abrir proceso",
                     "ID",
                     "Codigo",
                     "Entidad",
@@ -305,7 +333,14 @@ def main():
                     "Cierre",
                     "Estado PLADICOP",
                     "Verificacion"
-                ]
+                ],
+                column_config={
+                    "Abrir proceso": st.column_config.LinkColumn(
+                        "Abrir proceso",
+                        help="Consultar el expediente en PLADICOP; verificar vigencia antes de cotizar",
+                        display_text="Ver expediente",
+                    ),
+                },
             )
         else:
             st.info(
