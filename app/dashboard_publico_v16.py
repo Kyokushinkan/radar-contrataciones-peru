@@ -177,19 +177,15 @@ def main():
             ).strftime("%d/%m/%Y %H:%M")
 
             st.info(
-                "\\n".join([
+                "\n".join([
                     "**Estado de la base PLADICOP**",
                     "",
                     f"Registros consolidados: **{len(filas_v17)}**",
-                    f"Publicacion mas reciente de contrato: "
-                    f"**{fecha_mas_reciente}**",
-                    f"Fecha tecnica del archivo desplegado: "
-                    f"**{fecha_archivo} (Lima)**",
-                    "Descarga automatica de nuevos contratos: "
-                    "**no habilitada**.",
+                    f"Publicacion mas reciente: **{fecha_mas_reciente}**",
+                    f"Fecha tecnica del archivo: **{fecha_archivo} (Lima)**",
+                    "Descarga automatica: **no habilitada**",
                     "",
-                    "Los registros proceden de capturas "
-                    "consolidadas, no de una descarga automatica."
+                    "Datos de capturas consolidadas, no en tiempo real."
                 ])
             )
         else:
