@@ -118,13 +118,13 @@ def _plazo_v21(registro, ahora):
 
 def main():
     st.set_page_config(
-        page_title="Radar Contrataciones Peru v1.7",
+        page_title="Radar Contrataciones Peru v2.1",
         page_icon="📋",
         layout="wide",
     )
 
     st.title("Radar Contrataciones Perú")
-    st.caption("Version 1.7 | Explorador de contrataciones menores")
+    st.caption("Version 2.1 | Radar de oportunidades y plazos de cotizacion")
 
     contratos = cargar_contratos_publicos()
 
