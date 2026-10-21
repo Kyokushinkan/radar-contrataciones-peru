@@ -117,12 +117,12 @@ def main():
 
     a, b, c, d = st.columns(4)
     a.metric("Registros históricos", len(contratos))
-    b.metric("Bienes", bienes)
-    c.metric("Servicios", servicios)
-    d.metric("Activos confirmados", 0)
+    b.metric("Bienes hist?ricos", bienes)
+    c.metric("Servicios hist?ricos", servicios)
+    d.metric("Activos verificados en tiempo real", 0)
 
     tabs = st.tabs([
-        "Contratos activos",
+        "Contrataciones PLADICOP",
         "Explorador",
         "Oportunidades potenciales",
         "Entidades y categorías",
@@ -133,7 +133,65 @@ def main():
         # PLADICOP_ACTIVOS_V16
         from oportunidades_pladicop_v16 import cargar_oportunidades
 
-        st.subheader("Contratos menores - PLADICOP")
+        st.subheader("Contrataciones menores - PLADICOP")
+
+        # METADATOS_PORTADA_V17
+        import csv
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+
+        ruta_csv_v17 = (
+            Path(__file__).resolve().parents[1]
+            / "data/public/pladicop_cotizaciones_v17.csv"
+        )
+
+        if ruta_csv_v17.exists():
+            with ruta_csv_v17.open(
+                "r", encoding="utf-8-sig", newline=""
+            ) as archivo_csv:
+                filas_v17 = list(csv.DictReader(archivo_csv))
+
+            fechas_publicacion = []
+
+            for fila_v17 in filas_v17:
+                valor = (fila_v17.get("fecPublica") or "").strip()
+                if valor:
+                    try:
+                        fechas_publicacion.append(
+                            datetime.strptime(
+                                valor, "%d/%m/%Y %H:%M:%S"
+                            )
+                        )
+                    except ValueError:
+                        pass
+
+            fecha_mas_reciente = (
+                max(fechas_publicacion).strftime("%d/%m/%Y %H:%M")
+                if fechas_publicacion
+                else "No disponible en CSV"
+            )
+
+            fecha_archivo = datetime.fromtimestamp(
+                ruta_csv_v17.stat().st_mtime,
+                ZoneInfo("America/Lima")
+            ).strftime("%d/%m/%Y %H:%M")
+
+            st.info(
+                "**Estado de la base PLADICOP**  \\n"
+                f"Registros consolidados: **{len(filas_v17)}**  \\n"
+                f"Publicaci?n m?s reciente de contrato: "
+                f"**{fecha_mas_reciente}**  \\n"
+                f"Fecha del archivo en este despliegue: "
+                f"**{fecha_archivo} (Lima)**  \\n"
+                "Descarga autom?tica de nuevos contratos: "
+                "**no habilitada**."
+            )
+        else:
+            st.info(
+                "CSV incremental v1.7 no disponible. "
+                "Se utilizar? la fuente de respaldo."
+            )
+
 
         st.caption(
             "Oportunidades obtenidas de una captura local. "
@@ -153,10 +211,10 @@ def main():
 
         c1, c2, c3 = st.columns(3)
 
-        c1.metric("Contratos capturados", len(oportunidades))
+        c1.metric("Contratos PLADICOP", len(oportunidades))
         c2.metric("Candidatos a cotizacion", len(candidatos))
         c3.metric(
-            "Otros estados",
+            "No clasificados como candidatos",
             len(oportunidades) - len(candidatos)
         )
 
