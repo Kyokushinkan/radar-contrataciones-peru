@@ -90,13 +90,13 @@ def mostrar_contratos(registros, clave):
 
 def main():
     st.set_page_config(
-        page_title="Radar Contrataciones Perú v1.6",
+        page_title="Radar Contrataciones Peru v1.7",
         page_icon="📋",
         layout="wide",
     )
 
     st.title("Radar Contrataciones Perú")
-    st.caption("Versión 1.6 | Explorador de contrataciones menores")
+    st.caption("Version 1.7 | Explorador de contrataciones menores")
 
     contratos = cargar_contratos_publicos()
 
