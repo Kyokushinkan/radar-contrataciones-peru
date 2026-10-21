@@ -38,3 +38,8 @@ data/pytest-*/
 
 # Copias y respaldos locales
 *.bak
+
+# Archivos privados y respaldos Radar
+/config/local/
+/app/*.v16_backup
+/app/*.v16_backup.*
