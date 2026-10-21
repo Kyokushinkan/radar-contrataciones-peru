@@ -122,6 +122,7 @@ def cargar_oportunidades(ruta=CAPTURA, ahora=None):
             "Codigo": str(r.get("desContratacion") or
                           r.get("nroContratacion") or ""),
             "Entidad": str(r.get("nomEntidad") or ""),
+            "Departamento": str(r.get("departamento") or ""),
             "Objeto": str(r.get("nomObjetoContrato") or ""),
             "Descripcion": str(
                 r.get("desObjetoContrato") or ""

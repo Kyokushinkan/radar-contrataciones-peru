@@ -12,6 +12,55 @@ from dashboard_datos_publicos_v15 import cargar_contratos_publicos
 URL_SEACE = "https://prod6.seace.gob.pe/buscador-publico/"
 
 
+# GEOGRAFIA_V23: no inferir departamentos por nombres ni descripciones.
+DEPARTAMENTO_NO_DETERMINADO_V23 = "Departamento no determinado"
+
+
+def _normalizar_entidad_v23(texto):
+    import unicodedata
+    texto = unicodedata.normalize("NFKD", str(texto or ""))
+    texto = "".join(c for c in texto if not unicodedata.combining(c))
+    return " ".join(texto.casefold().split())
+
+
+@st.cache_data(show_spinner=False)
+def _mapa_departamentos_v23():
+    import csv
+    ruta = Path(__file__).resolve().parents[1] / "data/public/entidades_departamentos_verificados_v23.csv"
+    mapa = {}
+    if not ruta.is_file():
+        return mapa
+    with ruta.open(encoding="utf-8-sig", newline="") as archivo:
+        for fila in csv.DictReader(archivo):
+            entidad = _normalizar_entidad_v23(fila.get("nomEntidad"))
+            departamento = str(fila.get("departamento") or "").strip()
+            fuente = str(fila.get("fuente") or "").strip()
+            if entidad and departamento and fuente:
+                mapa[entidad] = departamento
+    return mapa
+
+
+def _departamento_v23(registro, campo):
+    valor = str(registro.get("Departamento") or registro.get("departamento") or "").strip()
+    if valor and valor != DEPARTAMENTO_NO_DETERMINADO_V23:
+        return valor
+    return _mapa_departamentos_v23().get(
+        _normalizar_entidad_v23(registro.get(campo)),
+        DEPARTAMENTO_NO_DETERMINADO_V23,
+    )
+
+
+def _selector_departamento_v23(registros, campo, clave):
+    departamentos = sorted({_departamento_v23(r, campo) for r in registros})
+    return st.selectbox("Departamento de la entidad compradora", ["Todos"] + departamentos, key=clave)
+
+
+def _filtrar_departamento_v23(registros, campo, seleccionado):
+    if seleccionado == "Todos":
+        return registros
+    return [r for r in registros if _departamento_v23(r, campo) == seleccionado]
+
+
 def tipo_legible(registro):
     return (
         "Bienes"
@@ -118,13 +167,13 @@ def _plazo_v21(registro, ahora):
 
 def main():
     st.set_page_config(
-        page_title="Radar Contrataciones Peru v2.2",
+        page_title="Radar Contrataciones Peru v2.3",
         page_icon="📋",
         layout="wide",
     )
 
     st.title("Radar Contrataciones Perú")
-    st.caption("Version 2.2 | Radar de oportunidades y filtros comerciales")
+    st.caption("Version 2.3 | Radar de oportunidades y filtros comerciales y geograficos")
 
     contratos = cargar_contratos_publicos()
 
@@ -331,6 +380,10 @@ def main():
             "Entidad compradora", ["Todas"] + entidades_v22,
             key="entidad_comercial_v22",
         )
+        departamento_v23 = _selector_departamento_v23(
+            todos_plazos, "Entidad", "departamento_pladicop_v23"
+        )
+        registros = _filtrar_departamento_v23(registros, "Entidad", departamento_v23)
         if tipo_v22 != "Todos":
             registros = [r for r in registros if str(r.get("Objeto", "")).strip() == tipo_v22]
         if entidad_v22 != "Todas":
@@ -345,6 +398,8 @@ def main():
                     for termino in rubros_v22[rubro_v22]
                 )
             ]
+        for registro in registros:
+            registro["Departamento"] = _departamento_v23(registro, "Entidad")
         st.caption("Filtros por palabras clave; los resultados requieren revisión del requerimiento oficial.")
         # Priorizar cierres proximos; los que no tienen fecha van al final.
         registros.sort(key=lambda r: (
@@ -379,7 +434,7 @@ def main():
                 use_container_width=True,
                 hide_index=True,
                 column_order=[
-                    "Abrir proceso", "ID", "Codigo", "Entidad", "Objeto",
+                    "Abrir proceso", "ID", "Codigo", "Entidad", "Departamento", "Objeto",
                     "Descripcion", "Inicio", "Cierre", "Estado del plazo",
                     "Tiempo restante", "Estado en captura", "Verificacion"
                 ],
@@ -426,6 +481,9 @@ def main():
             key="explorar_categoria",
         )
 
+        departamento_historico_v23 = _selector_departamento_v23(
+            contratos, "entidad", "departamento_explorador_v23"
+        )
         filtrados = []
 
         for contrato in contratos:
@@ -448,6 +506,8 @@ def main():
             if seleccion and contrato["categoria"] not in seleccion:
                 continue
 
+            if departamento_historico_v23 != "Todos" and _departamento_v23(contrato, "entidad") != departamento_historico_v23:
+                continue
             filtrados.append(contrato)
 
         mostrar_contratos(filtrados, "explorador")
@@ -503,6 +563,10 @@ def main():
             )
         ]
 
+        departamento_rubro_v23 = _selector_departamento_v23(
+            contratos, "entidad", "departamento_rubro_v23"
+        )
+        encontrados = _filtrar_departamento_v23(encontrados, "entidad", departamento_rubro_v23)
         st.metric("Registros historicos relacionados (no abiertos)", len(encontrados))
 
         mostrar_contratos(encontrados, "potenciales")
@@ -510,8 +574,14 @@ def main():
     with tabs[3]:
         st.subheader("Entidades compradoras")
 
+        departamento_entidades_v23 = _selector_departamento_v23(
+            contratos, "entidad", "departamento_entidades_v23"
+        )
+        contratos_entidades_v23 = _filtrar_departamento_v23(
+            contratos, "entidad", departamento_entidades_v23
+        )
         entidades = Counter(
-            c["entidad"] for c in contratos
+            c["entidad"] for c in contratos_entidades_v23
         )
 
         st.dataframe(
@@ -529,7 +599,7 @@ def main():
         st.subheader("Categorías registradas")
 
         categorias_contador = Counter(
-            c["categoria"] for c in contratos
+            c["categoria"] for c in contratos_entidades_v23
         )
 
         st.dataframe(
@@ -552,7 +622,13 @@ def main():
             "Base histórica conservada para consulta y análisis."
         )
 
-        mostrar_contratos(contratos, "historico")
+        departamento_archivo_v23 = _selector_departamento_v23(
+            contratos, "entidad", "departamento_archivo_v23"
+        )
+        contratos_archivo_v23 = _filtrar_departamento_v23(
+            contratos, "entidad", departamento_archivo_v23
+        )
+        mostrar_contratos(contratos_archivo_v23, "historico")
 
     st.divider()
     st.caption(
