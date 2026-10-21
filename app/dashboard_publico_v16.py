@@ -117,8 +117,8 @@ def main():
 
     a, b, c, d = st.columns(4)
     a.metric("Registros históricos", len(contratos))
-    b.metric("Bienes hist?ricos", bienes)
-    c.metric("Servicios hist?ricos", servicios)
+    b.metric("Bienes historicos", bienes)
+    c.metric("Servicios historicos", servicios)
     d.metric("Activos verificados en tiempo real", 0)
 
     tabs = st.tabs([
@@ -177,16 +177,20 @@ def main():
             ).strftime("%d/%m/%Y %H:%M")
 
             st.info(
-                "**Estado de la base PLADICOP**  \\n"
-                f"Registros consolidados: **{len(filas_v17)}**  \\n"
-                f"Publicaci?n m?s reciente de contrato: "
-                f"**{fecha_mas_reciente}**  \\n"
-                f"Fecha t?cnica del archivo desplegado: "
-                f"**{fecha_archivo} (Lima)**  \\n"
-                "Descarga autom?tica de nuevos contratos: "
-                "**no habilitada**.  \\n"
-                "Los registros proceden de capturas consolidadas, "
-                "no de una descarga autom?tica."
+                "\\n".join([
+                    "**Estado de la base PLADICOP**",
+                    "",
+                    f"Registros consolidados: **{len(filas_v17)}**",
+                    f"Publicacion mas reciente de contrato: "
+                    f"**{fecha_mas_reciente}**",
+                    f"Fecha tecnica del archivo desplegado: "
+                    f"**{fecha_archivo} (Lima)**",
+                    "Descarga automatica de nuevos contratos: "
+                    "**no habilitada**.",
+                    "",
+                    "Los registros proceden de capturas "
+                    "consolidadas, no de una descarga automatica."
+                ])
             )
         else:
             st.info(
