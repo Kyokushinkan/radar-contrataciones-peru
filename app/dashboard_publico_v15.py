@@ -126,8 +126,8 @@ def main():
 
             if identificador.isdecimal():
                 url_oficial = (
-                    "https://prod6.seace.gob.pe/cotizacion/"
-                    "contrataciones/contratacion-detalle/"
+                    "https://prod6.seace.gob.pe/buscador-publico/"
+                    "contrataciones/"
                     f"{identificador}"
                 )
                 st.link_button(
