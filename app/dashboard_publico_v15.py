@@ -135,6 +135,17 @@ def main():
                     url_oficial,
                 )
 
+                st.link_button(
+                    "Abrir buscador oficial SEACE",
+                    "https://prod6.seace.gob.pe/buscador-publico/",
+                )
+
+                st.caption(
+                    "Si el detalle aparece vacio, abre el buscador "
+                    "oficial y busca este codigo: "
+                    + str(contrato["codigo"])
+                )
+
 
 
     st.divider()
