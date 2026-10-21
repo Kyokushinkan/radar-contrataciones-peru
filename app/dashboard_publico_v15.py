@@ -136,10 +136,6 @@ def main():
                 )
 
 
-            st.caption(
-                "Enlace oficial directo pendiente de verificación. "
-                "No se ha confirmado una URL individual para este proceso."
-            )
 
     st.divider()
     st.caption(
