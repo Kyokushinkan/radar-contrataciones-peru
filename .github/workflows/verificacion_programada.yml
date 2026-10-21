@@ -36,6 +36,18 @@ jobs:
           mkdir -p data/test-tmp-batch
           python -m pytest tests/test_pladicop.py tests/test_pladicop_batch.py -q -o cache_dir=data/test-cache-batch --basetemp=data/test-tmp-batch
 
+      - name: Generar reporte de oportunidades
+        run: python scripts/reporte_automatico_v16.py
+
+      - name: Publicar reporte de verificacion
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-verificacion-${{ github.run_id }}
+          path: data/processed/reporte_automatico_v16.json
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Registrar ejecucion
         run: |
           echo "Verificacion completada"
