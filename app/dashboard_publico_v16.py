@@ -118,13 +118,13 @@ def _plazo_v21(registro, ahora):
 
 def main():
     st.set_page_config(
-        page_title="Radar Contrataciones Peru v2.1",
+        page_title="Radar Contrataciones Peru v2.2",
         page_icon="📋",
         layout="wide",
     )
 
     st.title("Radar Contrataciones Perú")
-    st.caption("Version 2.1 | Radar de oportunidades y plazos de cotizacion")
+    st.caption("Version 2.2 | Radar de oportunidades y filtros comerciales")
 
     contratos = cargar_contratos_publicos()
 
@@ -298,6 +298,54 @@ def main():
                 r for r in registros
                 if busqueda in " ".join(str(v) for k, v in r.items() if not k.startswith("_")).casefold()
             ]
+        # FILTROS_COMERCIALES_V22: aplicar sobre la vista de plazos seleccionada.
+        st.markdown("#### Filtros comerciales")
+        col_tipo_v22, col_rubro_v22 = st.columns(2)
+        tipos_v22 = sorted({
+            str(r.get("Objeto", "")).strip()
+            for r in todos_plazos if str(r.get("Objeto", "")).strip()
+        })
+        with col_tipo_v22:
+            tipo_v22 = st.selectbox(
+                "Tipo de contratación", ["Todos"] + tipos_v22,
+                key="tipo_comercial_v22",
+            )
+        rubros_v22 = {
+            "Todos": (),
+            "Limpieza e higiene": ("limpieza", "higien", "detergente", "desinfect", "escoba", "papel toalla"),
+            "Oficina y útiles": ("oficina", "escritorio", "toner", "tóner", "lapicero", "archivador"),
+            "Tecnología": ("computadora", "laptop", "impresora", "software", "informática"),
+            "Mantenimiento": ("mantenimiento", "reparación", "reparacion", "instalación", "instalacion"),
+            "Aire acondicionado": ("aire acondicionado", "climatización", "climatizacion"),
+            "Transporte": ("transporte", "traslado", "movilidad", "vehículo", "vehiculo"),
+        }
+        with col_rubro_v22:
+            rubro_v22 = st.selectbox(
+                "Rubro comercial", list(rubros_v22), key="rubro_comercial_v22",
+            )
+        entidades_v22 = sorted({
+            str(r.get("Entidad", "")).strip()
+            for r in todos_plazos if str(r.get("Entidad", "")).strip()
+        })
+        entidad_v22 = st.selectbox(
+            "Entidad compradora", ["Todas"] + entidades_v22,
+            key="entidad_comercial_v22",
+        )
+        if tipo_v22 != "Todos":
+            registros = [r for r in registros if str(r.get("Objeto", "")).strip() == tipo_v22]
+        if entidad_v22 != "Todas":
+            registros = [r for r in registros if str(r.get("Entidad", "")).strip() == entidad_v22]
+        if rubros_v22[rubro_v22]:
+            registros = [
+                r for r in registros
+                if any(
+                    termino in (
+                        str(r.get("Descripcion", "")) + " " + str(r.get("Codigo", ""))
+                    ).casefold()
+                    for termino in rubros_v22[rubro_v22]
+                )
+            ]
+        st.caption("Filtros por palabras clave; los resultados requieren revisión del requerimiento oficial.")
         # Priorizar cierres proximos; los que no tienen fecha van al final.
         registros.sort(key=lambda r: (
             r["_cierre_v21"] is None,
