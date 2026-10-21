@@ -231,29 +231,68 @@ def main():
             key="busqueda_pladicop_activos"
         ).strip().casefold()
 
+        vista = st.radio(
+            "Registros que deseas consultar",
+            ["Todos los contratos", "Solo candidatos"],
+            horizontal=True,
+            key="vista_pladicop_v17",
+        )
+
+        registros = (
+            list(oportunidades)
+            if vista == "Todos los contratos"
+            else list(candidatos)
+        )
+
         if busqueda:
-            candidatos = [
-                r for r in candidatos
-                if busqueda in " ".join([
-                    r["Entidad"],
-                    r["Codigo"],
-                    r["Descripcion"]
-                ]).casefold()
+            registros = [
+                r for r in registros
+                if busqueda in " ".join(
+                    str(valor) for valor in r.values()
+                ).lower()
             ]
 
-        candidatos.sort(
-            key=lambda r: datetime.strptime(
-                r["Cierre"], "%d/%m/%Y %H:%M:%S"
+        registros.sort(
+            key=lambda r: str(r.get("Cierre", "")),
+            reverse=True,
+        )
+
+        st.write(f"**{len(registros)} registros encontrados**")
+
+        if registros:
+            tamano = st.selectbox(
+                "Contratos por pagina",
+                [10, 25, 50],
+                index=1,
+                key="tamano_pladicop_v17",
             )
-        )
 
-        st.write(
-            f"**{len(candidatos)} candidatos encontrados**"
-        )
+            total_paginas = (
+                len(registros) + tamano - 1
+            ) // tamano
 
-        if candidatos:
+            pagina = st.number_input(
+                "Pagina",
+                min_value=1,
+                max_value=total_paginas,
+                value=1,
+                step=1,
+                key="pagina_pladicop_v17",
+            )
+
+            desde = (pagina - 1) * tamano
+            pagina_registros = registros[
+                desde:desde + tamano
+            ]
+
+            st.caption(
+                f"Mostrando {desde + 1}-"
+                f"{desde + len(pagina_registros)} "
+                f"de {len(registros)} contratos"
+            )
+
             st.dataframe(
-                candidatos,
+                pagina_registros,
                 use_container_width=True,
                 hide_index=True,
                 column_order=[
@@ -270,8 +309,8 @@ def main():
             )
         else:
             st.info(
-                "No existen candidatos dentro del plazo "
-                "en la captura disponible."
+                "No existen registros para los filtros "
+                "seleccionados."
             )
 
         st.link_button(
