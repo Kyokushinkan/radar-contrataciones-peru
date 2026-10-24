@@ -266,13 +266,40 @@ def main():
                 ZoneInfo("America/Lima")
             ).strftime("%d/%m/%Y %H:%M")
 
+            # METADATOS_VERIFICACION_PLADICOP_V29
+            import json
+
+            ruta_estado = (
+                Path(__file__).resolve().parents[1]
+                / "data/public/pladicop_estado_verificacion.json"
+            )
+
+            ultima_verificacion = "Pendiente de primera ejecución"
+
+            if ruta_estado.exists():
+                try:
+                    estado_verificacion = json.loads(
+                        ruta_estado.read_text(encoding="utf-8")
+                    )
+
+                    fecha_estado = datetime.fromisoformat(
+                        estado_verificacion["ultima_verificacion"]
+                    )
+
+                    ultima_verificacion = fecha_estado.astimezone(
+                        ZoneInfo("America/Lima")
+                    ).strftime("%d/%m/%Y %H:%M")
+
+                except (OSError, ValueError, KeyError, TypeError):
+                    ultima_verificacion = "No disponible"
             st.info(
                 "\n".join([
                     "**Estado de la base PLADICOP**",
                     "",
                     f"Registros consolidados: **{len(filas_v17)}**",
                     f"Publicacion mas reciente: **{fecha_mas_reciente}**",
-                    f"Fecha tecnica del archivo: **{fecha_archivo} (Lima)**",
+                    f"Ultima verificacion automatica: **{ultima_verificacion} (Lima)**",
+                    f"Ultima actualizacion de la base: **{fecha_archivo} (Lima)**",
                     "Descarga automatica: **no habilitada**",
                     "",
                     "Datos de capturas consolidadas, no en tiempo real."
